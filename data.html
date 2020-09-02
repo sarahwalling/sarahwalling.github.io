@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+<meta charset="utf-8">
+ 
+<title>Sarah Walling</title>
+
+</head>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.6.0/d3.min.js"></script>
+
+<body>
+	<div class="row">
+		<div class="twelve columns">
+			<ul class="nav-bar">
+ 		 		<li><a href="index.html">Home</a></li>
+  				<li><a href="about.html">About</a></li>
+  				<li><a href="research.html">Research Interests</a></li>
+  				<li class="active"><a href="data.html">Data Visualization</a></li>
+			</ul>
+			
+		</div>
+	</div>
+	
+	<div class="row">
+		<div class="twelve columns">
+			<div class="row">
+				<div class="eight columns">
+					<h3>Scatter plot</h3>
+					
+
+<div id="scatter"></div>
+
+<script>
+
+data = [{
+     year: 1994,
+     alwayswrong: 0.629331994,
+     notwrong: 0.220492215
+}, {
+     year: 1996,
+     alwayswrong: 0.564989518,
+     notwrong: 0.263626834
+}, {
+     year: 1998,
+     alwayswrong: 0.542689434,
+     notwrong: 0.274813234
+}, {
+     year: 2000,
+     alwayswrong: 0.538918919,
+     notwrong: 0.264324324
+}, {
+     year: 2002,
+     alwayswrong: 0.528835691,
+     notwrong: 0.31773667
+}, {
+     year: 2004,
+     alwayswrong: 0.560538117,
+     notwrong: 0.299327354
+}, {
+     year: 2006,
+     alwayswrong: 0.529707956,
+     notwrong: 0.314199396
+}, {
+     year: 2008,
+     alwayswrong: 0.489154824,
+     notwrong: 0.362004488
+}, {
+     year: 2010,
+     alwayswrong: 0.439082278,
+     notwrong: 0.410601266
+}, {
+     year: 2012,
+     alwayswrong: 0.439875873,
+     notwrong: 0.42901474
+}, {
+     year: 2014,
+     alwayswrong: 0.394690265,
+     notwrong: 0.479056047
+}, {
+     year: 2016,
+     alwayswrong: 0.377155172,
+     notwrong: 0.506465517
+}, {
+     year: 2018,
+     alwayswrong: 0.321727917,
+     notwrong: 0.545454545
+}]
+
+var margin = {
+     top: 20,
+     right: 20,
+     bottom: 30,
+     left: 40
+}
+
+width = 700 - margin.left - margin.right;
+height = 500 - margin.top - margin.bottom;
+
+// format the data
+data.forEach(function (d) {
+     parseDate = d3.timeParse("%Y");
+     d.year = parseDate(d.year);
+     d.alwayswrong = +d.alwayswrong;
+     d.notwrong = +d.notwrong;
+});
+
+var x = d3.scaleTime().range([0, width]);
+var y = d3.scaleLinear().range([height, 0]);
+
+x.domain(d3.extent(data, function (d) {
+     return d.year;
+}));
+
+y.domain([0, 1]);
+
+var valueline = d3.line()
+     .x(function (d) {
+          return x(d.year);
+     })
+     .y(function (d) {
+          return y(d.alwayswrong);
+     });
+
+// var yAxis = d3.svg.axisLeft()
+//     .scale(y)
+//     .orient("left")
+//     .tick(d.length);
+
+var svg = d3.select("#scatter").append("svg")
+     .attr("width", width + margin.left + margin.right + 50)
+     .attr("height", height + margin.top + margin.bottom + 50)
+     .append("g")
+     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var path = svg.selectAll(".red .dot")
+     .data(data)
+     .enter().append("circle")
+     .attr("r", 5)
+     .attr("cx", function (d) {
+           return x(d.year);
+     })
+     .attr("cy", function (d) {
+          return y(d.alwayswrong);
+     })
+     .attr("stroke", "#c43812")
+     .attr("stroke-width", 1.5)
+     .attr("fill", "#c43812")
+     .attr("class", "red dot");
+
+
+var valueline2 = d3.line()
+     .x(function (d) {
+          return x(d.year);
+     })
+     .y(function (d) {
+          return y(d.notwrong);
+     });
+
+
+var path2 = svg.selectAll(".blue .dot")
+     .data(data)
+     .enter().append("circle")
+     .attr("r", 5)
+     .attr("cx", function (d) {
+           return x(d.year);
+     })
+     .attr("cy", function (d) {
+          return y(d.notwrong);
+     })
+     .attr("stroke", "#1b6594")
+     .attr("stroke-width", 1.5)
+     .attr("fill", "#1b6594")
+     .attr("style", "blue dot");
+
+svg.append("g")
+     .attr("transform", "translate(0," + height + ")")
+     .call(d3.axisBottom(x));
+
+svg.append("g")
+     .call(d3.axisLeft(y).tickFormat(d3.format(".0%")));
+
+svg.append("text")
+	.attr("transform", "translate(582,330)")
+	.attr("dy", ".35em")
+	.attr("text-anchor", "start")
+	.attr("fill", "#c43812")
+	.attr("style", "red dot")
+	.text("Always Wrong");
+
+svg.append("text")
+	.attr("transform", "translate(587,185)")
+	.attr("dy", ".35em")
+	.attr("text-anchor", "start")
+	.attr("fill", "#1b6594")
+	.attr("style", "blue dot")
+	.text("Not Wrong");
+
+svg.append("text")
+	.attr("y", -25)
+	.attr("x", (width / 2)+5)
+	.attr("dy", "1em")
+	.style("text-anchor", "middle")
+	.style("font-size", "1.3em")
+	.attr("fill", "#000000")
+	.text("Percent of People Who Believe Same-Sex Relationships Are:");
+
+svg.append("text")             
+	.attr("transform",
+	    "translate(" + (width/2) + " ," + 
+	                   (height + margin.top + 20) + ")")
+	.style("text-anchor", "middle")
+	.text("Year");
+
+
+/*// gridlines in y axis function
+function make_y_gridlines() {		
+    return d3.axisLeft(y)
+        .ticks(6)
+}
+
+
+  // add the Y gridlines
+  svg.append("g")			
+      .attr("class", "grid")
+      .attr("fill", "#000fff")
+      .call(make_y_gridlines()
+          .tickSize(-width)
+          .tickFormat("")
+      )*/
+</script>
+					<hr />	
+					
+		
+				<div class="four columns">
+					<h4>Contact Me</h4>
+					<p>
+					I can be reached by email at: sarah.walling@umontana.edu	
+					<hr />
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="twelve columns">
+		<hr />
+		<p align="center">©2019 Sarah Walling</p>
+		</div>
+	</div>
+</body>
